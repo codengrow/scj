@@ -9,3 +9,9 @@ Saturday Code Jam is an activity that we held on a boring Saturday. We hope to g
 * GIT
 * Tech talks
 * Software Design/ Architecture
+
+Our philosophy:
+* Sharing -> Learning -> Growing
+* Simplicity
+* Explicity
+* Freedom
