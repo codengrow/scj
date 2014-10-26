@@ -1,4 +1,4 @@
-scj (Saturday Code Jam)
+Saturday Code Jam (scj)
 ===
 
 Saturday Code Jam is a project aiming at sharing knowledge and learning in the following topics of interest:
