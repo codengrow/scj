@@ -15,3 +15,4 @@ Our philosophy:
 * Simplicity
 * Explicity
 * Freedom
+* Patience
