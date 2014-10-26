@@ -1,18 +1,10 @@
-scj
+scj (Saturday Code Jam)
 ===
 
-Saturday Code Jam is an activity that we held on a boring Saturday. We hope to grow after each meetup. The purpose of this meetup is to share and learn from the following topics of interest:
-* C++
-* Python
-* VIM
-* Linux geeky
-* GIT
-* Tech talks
-* Software Design/ Architecture
+Saturday Code Jam is a project aiming at sharing knowledge and learning in the following topics of interest:
+* Software Design/Architecture
+* Programing Languages (C++, Python, etc.)
+* Linux Tools (vim, git, etc.)
+* Tech Talks
 
-Our philosophy:
-* Sharing -> Learning -> Growing
-* Simplicity
-* Explicity
-* Freedom
-* Patience
+We get together every saturday and present our knowledge to each oher. The philosophy of the group is based on simplicity, compassion (sharing, learning, growing), freedom, explicity and patience.
