@@ -1,4 +1,6 @@
 Season 1
+========
+
  * Episode 1 - Function pointers, function objects, C++11 lambda functions, Vim intro
  * Episode 2 - C++11 rvalue reference
  * Episode 3 - UML Meta-modeling
