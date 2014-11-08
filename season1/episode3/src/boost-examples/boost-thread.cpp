@@ -7,44 +7,61 @@ using namespace std;
 struct callable
 {
 	void operator()(){
-		std::cout << "Thread " << boost::this_thread::get_id()<<" in a callable struct" << std::endl;
+		std::cout << "Thread " 
+              << boost::this_thread::get_id()
+              <<" in a callable struct" 
+              << std::endl;
 	};
 };
 
 boost::thread copies_are_safe()
 {
 	callable x;
-	std::cout << "Thread id = " << boost::this_thread::get_id() << std::endl;
+	std::cout << "Thread " 
+            << boost::this_thread::get_id() 
+            << std::endl;
 	return boost::thread(x);
 }
 
 boost::thread oops()
 {
 	callable x;
-	std::cout << "Thread id = " << boost::this_thread::get_id() << std::endl;
-	return boost::thread(x);
-//	return boost::thread(boost::ref(x));
-
+	std::cout << "Thread " 
+            << boost::this_thread::get_id() 
+            << std::endl;
+	return boost::thread(boost::ref(x));
 }
 
-int find_the_question(int index)
+int func(int para)
 {
 	{
 		boost::this_thread::disable_interruption di;
 		{
-			std::cout << "function's parameter" << index;
-			std::cout << " Thread id = " << boost::this_thread::get_id() << std::endl;
+			std::cout << "Thread " 
+                << boost::this_thread::get_id() 
+                << " with para =" 
+                << para 
+                << std::endl;
 		}
 	}
 }
 
 int main()
 {
-	std::cout << "Native thread id=" << boost::this_thread::get_id() << std::endl;
-	boost::thread t(find_the_question,432);
-	t.join();
-	boost::thread t2 = copies_are_safe();
+  /***** main thread *****/	
+  std::cout << "Native thread " << boost::this_thread::get_id() << std::endl;
+
+  /***** launch thread from a function with (unlimited) parameters *****/	
+  boost::thread t1( func, 432 );
+  t1.join();
+
+  /***** thread as a returned object ****/
+  boost::thread t2 = copies_are_safe();
+  //std::cout << t2::get_id() << std::endl;
+ // t2.detach();
 	t2.join();
+
+  /***** thread as a returned object *****/
 	boost::thread t3 = oops();
 	t3.join();
 }
