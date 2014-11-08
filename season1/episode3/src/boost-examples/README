@@ -1,0 +1,5 @@
+#Command line to compile file
+g++ *.cpp -I <boost_folder> -lboost_system -lboost_thread -L <boost_linked_lib_folder>
+
+For example:
+g++ *.cpp -I /home/minh/Downloads/boost_1_57_0 -lboost_system -lboost_thread -L /home/minh/Downloads/boost_1_57_0/stage/lib
