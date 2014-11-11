@@ -1,0 +1,40 @@
+[Buildset]
+BuildItems=@Variant(\x00\x00\x00\t\x00\x00\x00\x00\x01\x00\x00\x00\x0b\x00\x00\x00\x00\x01\x00\x00\x00\x14\x00t\x00e\x00s\x00t\x00f\x00i\x00l\x00t\x00e\x00r)
+
+[CMake]
+Build Directory Count=0
+Current Build Directory Index=-1
+ProjectRootRelative=./
+
+[Launch]
+Launch Configurations=Launch Configuration 0,Launch Configuration 1
+
+[Launch][Launch Configuration 0]
+Configured Launch Modes=execute
+Configured Launchers=nativeAppLauncher
+Name=testfilter
+Type=Native Application
+
+[Launch][Launch Configuration 0][Data]
+Arguments=
+Dependencies=@Variant(\x00\x00\x00\t\x00\x00\x00\x00\x00)
+Dependency Action=Nothing
+EnvironmentGroup=default
+Executable=file:///home/arash/projects/testfilter/
+External Terminal=konsole --noclose --workdir %workdir -e %exe
+Project Target=testfilter,testfilter
+Use External Terminal=false
+Working Directory=
+isExecutable=false
+
+[Launch][Launch Configuration 1]
+Configured Launch Modes=execute
+Configured Launchers=nativeAppLauncher
+Name=testfilter
+Type=Native Application
+
+[Launch][Launch Configuration 1][Data]
+Configured from ProjectItem=testfilter,testfilter
+Project Target=testfilter,testfilter
+Working Directory=file:///home/arash/projects/testfilter/build/
+isExecutable=false
