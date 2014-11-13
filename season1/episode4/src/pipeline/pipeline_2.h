@@ -22,6 +22,7 @@
 #include <thread>
 #include <future>
 #include <string>
+#include <vector>
 #include <mutex>
 #include "semaphore.h"
 
@@ -164,13 +165,29 @@ class Pipeline {
 
 private:
   mutex io_lock;
+  vector<Filter *> filters;
     
 public:
-  void addFilter(Filter& f) {
-    f.setIOLock(&io_lock); 
+  void addFilter(Filter * f) {
+    f->setIOLock(&io_lock);
+    filters.push_back(f);
   }
   void connectFilter(ProducerFilter& f1, ConsumerFilter& f2) {
     f1.addNextConsumer(f2);
+  }
+  
+  void start() {
+  
+    for (auto f : filters) {
+      f->start();
+    }
+  }
+  
+  void wait() {
+  
+    for (auto f : filters) {
+      f->wait();
+    }
   }
 };
 

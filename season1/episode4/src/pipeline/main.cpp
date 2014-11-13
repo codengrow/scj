@@ -16,20 +16,15 @@ int main(int argc, char **argv) {
   pro.setSpeed(1000);
   con1.setSpeed(2);
   con2.setSpeed(2);
-  pipe.addFilter(pro);
-  pipe.addFilter(con1);
-  pipe.addFilter(con2);
+  pipe.addFilter(&pro);
+  pipe.addFilter(&con1);
+  pipe.addFilter(&con2);
  
   pipe.connectFilter(pro, con1);
   pipe.connectFilter(pro, con2);
   
-  pro.start();
-  con1.start();
-  con2.start();
-  
-  pro.wait();
-  con1.wait();
-  con2.wait();
+  pipe.start();
+  pipe.wait();
   
   return 0;
 }
