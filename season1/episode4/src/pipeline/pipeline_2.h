@@ -23,6 +23,7 @@
 #include <future>
 #include <string>
 #include <mutex>
+#include "semaphore.h"
 
 #define SIZE 10
 
@@ -30,59 +31,54 @@ using namespace std;
 
 class Buffer {
 protected:
+  int * buf;
   int size;
   int current_index;
   
+  mutex con_mux;
+  condition_variable con_cond;
+  unsigned long con_num;
+  
+  mutex pro_mux;
+  condition_variable pro_cond;
+  
 public:
-  Buffer(int s): size(s), current_index(0) {
+  Buffer(int s): size(s), current_index(0), con_num(0), buf(new int[s])  {
   }
   
-  /*
-  void insert(int b) {
-    buf[current_index] = b;
+  int getSize() {return size;}
+  
+  void write(int val) {
+    
+    unique_lock<mutex> con_locker(con_mux);
+    while(con_num > 0)
+      con_cond.wait(con_locker);
+    
+    buf[current_index] = val;
+   
+    lock_guard<mutex> pro_locker(pro_mux);
+    pro_cond.notify_all();
     current_index = (current_index + 1) % size;
   }
   
-  int get() {
-    return buf[current_index];
-  }*/
-  
-};
-
-class FutureBuffer : public Buffer {
-private:
-  future<int> * buf;
-  
-public:
-  FutureBuffer(int s): Buffer(s), buf(new future<int>[s]) {}
-
-  future<int> * getFutureBuf() { return buf; }
-  
-  int get() {
-    int res = buf[current_index].get();
-    current_index = (current_index + 1) % size;
+  int read(int index) {
+    
+    int res;
+    
+    unique_lock<mutex> pro_locker(pro_mux);
+    pro_cond.wait(pro_locker);
+   
+    lock_guard<mutex> con_locker(con_mux);
+    con_num++;
+    res = buf[index];
+    con_num--;
+    con_cond.notify_one();
+    
     return res;
   }
+  
 };
 
-class PromiseBuffer : public Buffer {
-private:
-  promise<int> * buf;
-  
-public:
-  PromiseBuffer(int s): Buffer(s), buf(new promise<int>[s]) {}
-  
-  void setFuture(FutureBuffer * fb) {
-    future<int> * buffuture = fb->getFutureBuf();
-    for (int i=0; i < size; i++) {
-      buffuture[i] = buf[i].get_future();
-    }
-  }
-  void insert(int b) {
-    buf[current_index].set_value(b);
-    current_index = (current_index + 1) % size;
-  }
-};
 
 class Filter {
 
@@ -91,6 +87,7 @@ protected:
   int num;
   thread * t;
   mutex* io_lock;
+  int speed;
   
   void log() {
     io_lock->lock();
@@ -111,38 +108,50 @@ public:
   void setIOLock(mutex* m) {
     io_lock = m;
   }
+  
+  void setSpeed(int ms) { speed = ms; }
+  
+  void sleep() {
+    this_thread::sleep_for(chrono::milliseconds{rand()%speed});
+  }
+  
   virtual void operation() = 0;
 };
 
 
 class ConsumerFilter: public Filter {
 private:
-  FutureBuffer * buf;
+  Buffer * buf;
 public:
-  ConsumerFilter(string name): Filter(name), buf(new FutureBuffer(SIZE)) {}
-  FutureBuffer * getFutureBuf() {return buf;}
+  ConsumerFilter(string name): Filter(name)  {}
+  
+  void setBuf(Buffer * b) { buf = b; }
+  
   void operation() {
+    int size = buf->getSize();
+    int idx = 0;
     while(1) {
-      //this_thread::sleep_for(chrono::milliseconds{rand()%1000});
-      num = buf->get();
-      log(); 
+      sleep();
+      num = buf->read(idx);
+      log();
+      idx = (idx + 1) % size;
     }
   }
 };
 
 class ProducerFilter: public Filter {
 private:
-  PromiseBuffer * buf;
+  Buffer * buf;
 public:
-  ProducerFilter(string name): Filter(name), buf(new PromiseBuffer(SIZE)) {}
+  ProducerFilter(string name): Filter(name), buf(new Buffer(SIZE)) {}
   void addNextConsumer(ConsumerFilter& cf) {
-    buf->setFuture(cf.getFutureBuf());
+    cf.setBuf(buf);
   }
   void operation() {
     while(1) {
-      this_thread::sleep_for(chrono::milliseconds{rand()%1000});
+      sleep();
       log();
-      buf->insert(num);
+      buf->write(num);
       num++;
     }
   }
@@ -158,11 +167,8 @@ public:
     f.setIOLock(&io_lock); 
   }
   void connectFilter(ProducerFilter& f1, ConsumerFilter& f2) {
-    //f1.addNext(f2);
     f1.addNextConsumer(f2);
-    //f2.setIOLock(&io_lock);
   }
 };
-
 
 #endif // PIPELINE_2_H

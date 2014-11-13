@@ -37,16 +37,6 @@ public:
   Buffer(int s): size(s), current_index(0) {
   }
   
-  /*
-  void insert(int b) {
-    buf[current_index] = b;
-    current_index = (current_index + 1) % size;
-  }
-  
-  int get() {
-    return buf[current_index];
-  }*/
-  
 };
 
 class FutureBuffer : public Buffer {
@@ -91,6 +81,7 @@ protected:
   int num;
   thread * t;
   mutex* io_lock;
+  int speed;
   
   void log() {
     io_lock->lock();
@@ -99,7 +90,7 @@ protected:
   }
   
 public:
-  Filter(string name): name(name), num(0) {
+  Filter(string name): name(name), num(0), speed(1000) {
     
   }
   void start() {
@@ -110,6 +101,11 @@ public:
   }
   void setIOLock(mutex* m) {
     io_lock = m;
+  }
+  void setSpeed(int ms) { speed = ms; }
+  
+  void sleep() {
+    this_thread::sleep_for(chrono::milliseconds{rand()%speed});
   }
   virtual void operation() = 0;
 };
@@ -123,7 +119,7 @@ public:
   FutureBuffer * getFutureBuf() {return buf;}
   void operation() {
     while(1) {
-      //this_thread::sleep_for(chrono::milliseconds{rand()%1000});
+      sleep();
       num = buf->get();
       log(); 
     }
@@ -140,7 +136,7 @@ public:
   }
   void operation() {
     while(1) {
-      this_thread::sleep_for(chrono::milliseconds{rand()%1000});
+      sleep();
       log();
       buf->insert(num);
       num++;
@@ -158,11 +154,8 @@ public:
     f.setIOLock(&io_lock); 
   }
   void connectFilter(ProducerFilter& f1, ConsumerFilter& f2) {
-    //f1.addNext(f2);
     f1.addNextConsumer(f2);
-    //f2.setIOLock(&io_lock);
   }
 };
-
 
 #endif // PIPELINE_1_H
