@@ -97,7 +97,7 @@ protected:
   }
   
 public:
-  Filter(string name): name(name), num(0), buf(new Buffer(SIZE)) {
+  Filter(string name): name(name), num(0) {
  
   }
   void start() {
@@ -122,7 +122,9 @@ public:
 
 class ConsumerFilter: public Filter {
 public:
-  ConsumerFilter(string name): Filter(name)  {}
+  ConsumerFilter(string name): Filter(name) {
+    buf = nullptr;
+  }
   
   void setBuf(Buffer * b) { buf = b; }
   
@@ -140,10 +142,14 @@ public:
 
 class ProducerFilter: public Filter {
 public:
-  ProducerFilter(string name): Filter(name){}
+  ProducerFilter(string name): Filter(name) {
+    buf = new Buffer(SIZE);
+  }
+  
   void addNextConsumer(ConsumerFilter& cf) {
     cf.setBuf(buf);
   }
+  
   void operation() {
     while(1) {
       sleep();
