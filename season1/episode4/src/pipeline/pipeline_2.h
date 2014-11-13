@@ -81,14 +81,15 @@ public:
 
 
 class Filter {
-
+ 
 protected:
   string name;
   int num;
   thread * t;
   mutex* io_lock;
   int speed;
-  
+  Buffer * buf;
+
   void log() {
     io_lock->lock();
     cout << name << " is processing " << num << endl;
@@ -96,8 +97,8 @@ protected:
   }
   
 public:
-  Filter(string name): name(name), num(0) {
-    
+  Filter(string name): name(name), num(0), buf(new Buffer(SIZE)) {
+ 
   }
   void start() {
     t = new thread(&Filter::operation, this);
@@ -120,8 +121,6 @@ public:
 
 
 class ConsumerFilter: public Filter {
-private:
-  Buffer * buf;
 public:
   ConsumerFilter(string name): Filter(name)  {}
   
@@ -140,18 +139,16 @@ public:
 };
 
 class ProducerFilter: public Filter {
-private:
-  Buffer * buf;
 public:
-  ProducerFilter(string name): Filter(name), buf(new Buffer(SIZE)) {}
+  ProducerFilter(string name): Filter(name){}
   void addNextConsumer(ConsumerFilter& cf) {
     cf.setBuf(buf);
   }
   void operation() {
     while(1) {
       sleep();
-      log();
       buf->write(num);
+      log();
       num++;
     }
   }
