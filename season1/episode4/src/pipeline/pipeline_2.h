@@ -26,7 +26,7 @@
 #include <mutex>
 #include "semaphore.h"
 
-#define SIZE 10
+const int SIZE = 10;
 
 using namespace std;
 
@@ -74,7 +74,7 @@ public:
     this->val = val; 
   }
   
-  T read() {
+  T read() const {
     return val;
   }
 };
@@ -89,7 +89,7 @@ public:
   Buffer(int s): size(s), nodes(new Node<T>[s]())  {
   }
   
-  int getSize() {return size;}
+  int getSize() const {return size;}
   Node<T>& getNode(int idx) const { return nodes[idx]; }
 };
 
@@ -104,14 +104,14 @@ protected:
   int speed;
   Buffer<int> * buf;
 
-  void log() {
+  void log() const {
     io_lock->lock();
     cout << name << " is processing " << num << endl;
     io_lock->unlock();
   }
   
 public:
-  Filter(string name): name(name), num(0) {
+  Filter(const string& name): name(name), num(0) {
  
   }
   void start() {
@@ -126,7 +126,7 @@ public:
   
   void setSpeed(int ms) { speed = ms; }
   
-  void sleep() {
+  void sleep() const {
     this_thread::sleep_for(chrono::milliseconds{rand()%speed});
   }
   
@@ -136,7 +136,7 @@ public:
 
 class ConsumerFilter: public Filter {
 public:
-  ConsumerFilter(string name): Filter(name) {
+  ConsumerFilter(const string& name): Filter(name) {
     buf = nullptr;
   }
   
@@ -159,7 +159,7 @@ public:
 
 class ProducerFilter: public Filter {
 public:
-  ProducerFilter(string name): Filter(name) {
+  ProducerFilter(const string& name): Filter(name) {
     buf = new Buffer<int>(SIZE);
   }
   
