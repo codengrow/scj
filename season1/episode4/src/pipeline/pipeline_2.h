@@ -30,9 +30,10 @@
 
 using namespace std;
 
+template <typename T>
 class Node {
  
-  int val;
+  T val;
   mutex con_mux;
   condition_variable con_cond;
   unsigned long con_num;
@@ -43,7 +44,7 @@ class Node {
 public:
   
   Node(): con_num(0) {}
-  void write(int val) {
+  void write(T val) {
 
     unique_lock<mutex> con_locker(con_mux);
     while(con_num > 0)
@@ -55,9 +56,9 @@ public:
     pro_cond.notify_all();
   }
   
-  int read() {
+  T read() {
    
-    int res;
+    T res;
     unique_lock<mutex> pro_locker(pro_mux);
     pro_cond.wait(pro_locker);
    
@@ -71,25 +72,26 @@ public:
   }
 };
 
+template<typename T>
 class Buffer {
 protected:
-  Node * buf;
+  Node<T> * buf;
   int size;
   int current_index;
   
 public:
-  Buffer(int s): size(s), current_index(0), buf(new Node[s]())  {
+  Buffer(int s): size(s), current_index(0), buf(new Node<T>[s]())  {
   }
   
   int getSize() {return size;}
   
-  void write(int val) {
+  void write(T val) {
     buf[current_index].write(val);
     current_index = (current_index + 1) % size;
   }
   
-  int read(int index) {
-    int res = buf[index].read();
+  T read(int index) {
+    T res = buf[index].read();
     return res;
   }
   
@@ -104,7 +106,7 @@ protected:
   thread * t;
   mutex* io_lock;
   int speed;
-  Buffer * buf;
+  Buffer<int> * buf;
 
   void log() {
     io_lock->lock();
@@ -142,7 +144,7 @@ public:
     buf = nullptr;
   }
   
-  void setBuf(Buffer * b) { buf = b; }
+  void setBuf(Buffer<int> * b) { buf = b; }
   
   void operation() {
     int size = buf->getSize();
@@ -159,7 +161,7 @@ public:
 class ProducerFilter: public Filter {
 public:
   ProducerFilter(string name): Filter(name) {
-    buf = new Buffer(SIZE);
+    buf = new Buffer<int>(SIZE);
   }
   
   void addNextConsumer(ConsumerFilter& cf) {
