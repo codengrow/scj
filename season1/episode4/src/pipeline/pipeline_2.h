@@ -44,57 +44,53 @@ class Node {
 public:
   
   Node(): con_num(0) {}
-  void write(T val) {
-
-    unique_lock<mutex> con_locker(con_mux);
-    while(con_num > 0)
-      con_cond.wait(con_locker);
-    
-    this->val = val;
-   
-    lock_guard<mutex> pro_locker(pro_mux);
-    pro_cond.notify_all();
-  }
   
-  T read() {
-   
-    T res;
+  void consumerLock() {
     unique_lock<mutex> pro_locker(pro_mux);
     pro_cond.wait(pro_locker);
    
     lock_guard<mutex> con_locker(con_mux);
     con_num++;
-    res = val;
+  }
+  
+  void consumerUnlock() {
+    lock_guard<mutex> con_locker(con_mux);
     con_num--;
     con_cond.notify_one();
-    return res;
-    
+  }
+  
+  void producerLock() {
+    unique_lock<mutex> con_locker(con_mux);
+    while(con_num > 0)
+      con_cond.wait(con_locker);
+  }
+  
+  void producerUnlock() {
+    lock_guard<mutex> pro_locker(pro_mux);
+    pro_cond.notify_all();
+  }
+  
+  void write(T val) {
+    this->val = val; 
+  }
+  
+  T read() {
+    return val;
   }
 };
 
 template<typename T>
 class Buffer {
 protected:
-  Node<T> * buf;
+  Node<T> * nodes;
   int size;
-  int current_index;
   
 public:
-  Buffer(int s): size(s), current_index(0), buf(new Node<T>[s]())  {
+  Buffer(int s): size(s), nodes(new Node<T>[s]())  {
   }
   
   int getSize() {return size;}
-  
-  void write(T val) {
-    buf[current_index].write(val);
-    current_index = (current_index + 1) % size;
-  }
-  
-  T read(int index) {
-    T res = buf[index].read();
-    return res;
-  }
-  
+  Node<T>& getNode(int idx) const { return nodes[idx]; }
 };
 
 
@@ -148,11 +144,14 @@ public:
   
   void operation() {
     int size = buf->getSize();
+    
     int idx = 0;
     while(1) {
-      sleep();
-      num = buf->read(idx);
+      buf->getNode(idx).consumerLock();
+      num = buf->getNode(idx).read();
       log();
+      sleep();
+      buf->getNode(idx).consumerUnlock();
       idx = (idx + 1) % size;
     }
   }
@@ -169,11 +168,18 @@ public:
   }
   
   void operation() {
+    
+    int size = buf->getSize();
+    
+    int idx = 0;
     while(1) {
-      sleep();
-      buf->write(num);
+      buf->getNode(idx).producerLock();
+      buf->getNode(idx).write(num);
       log();
+      sleep();
+      buf->getNode(idx).producerUnlock();
       num++;
+      idx = (idx + 1) % size;
     }
   }
 };
