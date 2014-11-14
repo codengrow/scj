@@ -30,12 +30,9 @@
 
 using namespace std;
 
-class Buffer {
-protected:
-  int * buf;
-  int size;
-  int current_index;
-  
+class Node {
+ 
+  int val;
   mutex con_mux;
   condition_variable con_cond;
   unsigned long con_num;
@@ -44,37 +41,55 @@ protected:
   condition_variable pro_cond;
   
 public:
-  Buffer(int s): size(s), current_index(0), con_num(0), buf(new int[s])  {
-  }
   
-  int getSize() {return size;}
-  
+  Node(): con_num(0) {}
   void write(int val) {
-    
+
     unique_lock<mutex> con_locker(con_mux);
     while(con_num > 0)
       con_cond.wait(con_locker);
     
-    buf[current_index] = val;
+    this->val = val;
    
     lock_guard<mutex> pro_locker(pro_mux);
     pro_cond.notify_all();
-    current_index = (current_index + 1) % size;
   }
   
-  int read(int index) {
-    
+  int read() {
+   
     int res;
-    
     unique_lock<mutex> pro_locker(pro_mux);
     pro_cond.wait(pro_locker);
    
     lock_guard<mutex> con_locker(con_mux);
     con_num++;
-    res = buf[index];
+    res = val;
     con_num--;
     con_cond.notify_one();
+    return res;
     
+  }
+};
+
+class Buffer {
+protected:
+  Node * buf;
+  int size;
+  int current_index;
+  
+public:
+  Buffer(int s): size(s), current_index(0), buf(new Node[s]())  {
+  }
+  
+  int getSize() {return size;}
+  
+  void write(int val) {
+    buf[current_index].write(val);
+    current_index = (current_index + 1) % size;
+  }
+  
+  int read(int index) {
+    int res = buf[index].read();
     return res;
   }
   
