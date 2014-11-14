@@ -16,11 +16,11 @@ template <typename T>
 class Node {
  
   T val;
-  mutex con_mux;
+  mutex mux;
+  
   condition_variable con_cond;
   unsigned int con_num;
   
-  mutex pro_mux;
   condition_variable pro_cond;
   bool prod;
   
@@ -29,33 +29,39 @@ public:
   Node(): con_num(0), prod(false) {}
   
   void consumerLock() {
-    unique_lock<mutex> pro_locker(pro_mux);
+    unique_lock<mutex> locker(mux);
     while(prod)
-      pro_cond.wait(pro_locker);
-   
-    pro_mux.unlock();
-    lock_guard<mutex> con_locker(con_mux);
+      pro_cond.wait(locker);
+    
     con_num++;
   }
   
+    
   void consumerUnlock() {
-    lock_guard<mutex> con_locker(con_mux);
+    lock_guard<mutex> locker(mux);
     con_num--;
     con_cond.notify_one();
   }
   
   void producerLock() {
-    unique_lock<mutex> con_locker(con_mux);
+    unique_lock<mutex> locker(mux);
     while(con_num > 0)
-      con_cond.wait(con_locker);
+      con_cond.wait(locker);
     
-    con_mux.unlock();
-    lock_guard<mutex> pro_locker(pro_mux);
     prod = true;
   }
   
+  bool producerRTLock() {
+    lock_guard<mutex> locker(mux);
+    if(con_num > 0)
+      return false;
+    
+    prod = true;
+    return true;
+  }
+  
   void producerUnlock() {
-    lock_guard<mutex> pro_locker(pro_mux);
+    lock_guard<mutex> locker(mux);
     prod = false;
     pro_cond.notify_all();
   }
