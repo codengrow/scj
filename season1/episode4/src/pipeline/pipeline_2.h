@@ -51,6 +51,7 @@ public:
     while(prod)
       pro_cond.wait(pro_locker);
    
+    pro_mux.unlock();
     lock_guard<mutex> con_locker(con_mux);
     con_num++;
   }
@@ -66,6 +67,8 @@ public:
     while(con_num > 0)
       con_cond.wait(con_locker);
     
+    con_mux.unlock();
+    lock_guard<mutex> pro_locker(pro_mux);
     prod = true;
   }
   
