@@ -131,7 +131,9 @@ public:
   }
   
   virtual void operation() = 0;
-  virtual void operationRT() = 0;
+  virtual void operationRT() {
+    operation();
+  };
 };
 
 
@@ -156,11 +158,6 @@ public:
       idx = (idx + 1) % size;
     }
   }
-  
-  void operationRT() {
-    operation(); 
-  }
-  
   
 };
 

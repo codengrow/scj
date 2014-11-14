@@ -23,7 +23,7 @@ int main(int argc, char **argv) {
   pipe.connectFilter(pro, con1);
   pipe.connectFilter(pro, con2);
   
-  //pipe.setRealTime(true);
+  pipe.setRealTime(true);
   
   pipe.start();
   pipe.wait();
