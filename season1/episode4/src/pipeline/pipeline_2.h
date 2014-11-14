@@ -8,7 +8,7 @@
 #include <vector>
 #include <mutex>
 
-const int SIZE = 10;
+const int SIZE = 3;
 
 using namespace std;
 
@@ -101,9 +101,9 @@ protected:
   int speed;
   Buffer<int> * buf;
 
-  void log() const {
+  void log(const string& msg) const {
     io_lock->lock();
-    cout << name << " is processing " << num << endl;
+    cout << name << " " <<msg << " " << num << endl;
     io_lock->unlock();
   }
   
@@ -113,6 +113,9 @@ public:
   }
   void start() {
     t = new thread(&Filter::operation, this);
+  }
+  void startRT() {
+    t = new thread(&Filter::operationRT, this);
   }
   void wait() {
     t->join();
@@ -128,6 +131,7 @@ public:
   }
   
   virtual void operation() = 0;
+  virtual void operationRT() = 0;
 };
 
 
@@ -146,12 +150,18 @@ public:
     while(1) {
       buf->at(idx).consumerLock();
       num = buf->at(idx).read();
-      log();
+      log("is consuming");
       sleep();
       buf->at(idx).consumerUnlock();
       idx = (idx + 1) % size;
     }
   }
+  
+  void operationRT() {
+    operation(); 
+  }
+  
+  
 };
 
 class ProducerFilter: public Filter {
@@ -172,11 +182,33 @@ public:
     while(1) {
       buf->at(idx).producerLock();
       buf->at(idx).write(num);
-      log();
+      log("is producing");
       sleep();
       buf->at(idx).producerUnlock();
-      num++;
       idx = (idx + 1) % size;
+      num++;
+    }
+  }
+  
+  void operationRT() {
+    
+    int size = buf->getSize();
+    
+    int idx = 0;
+    while(1) {
+      bool canlock = buf->at(idx).producerRTLock();
+      if (canlock) {
+	buf->at(idx).write(num);
+	log("is producing");
+	sleep();
+	buf->at(idx).producerUnlock();
+	idx = (idx + 1) % size;
+      }
+      else {
+	log("is droping");
+	sleep();
+      }
+      num++;
     }
   }
 };
@@ -184,10 +216,14 @@ public:
 class Pipeline {
 
 private:
+  bool realtime;
   mutex io_lock;
   vector<Filter *> filters;
     
 public:
+  
+  Pipeline(): realtime(false) {}
+  
   void addFilter(Filter * f) {
     f->setIOLock(&io_lock);
     filters.push_back(f);
@@ -196,10 +232,13 @@ public:
     f1.addNextConsumer(f2);
   }
   
-  void start() {
+  void setRealTime(bool rt) {
+    realtime = rt;
+  }
   
+  void start() {
     for (auto f : filters) {
-      f->start();
+      realtime? f->startRT() : f->start();
     }
   }
   
