@@ -36,19 +36,19 @@ class Node {
   T val;
   mutex con_mux;
   condition_variable con_cond;
-  unsigned long con_num;
+  unsigned int con_num;
   
   mutex pro_mux;
   condition_variable pro_cond;
-  unsigned long pro_num;
+  bool prod;
   
 public:
   
-  Node(): con_num(0), pro_num(0) {}
+  Node(): con_num(0), prod(false) {}
   
   void consumerLock() {
     unique_lock<mutex> pro_locker(pro_mux);
-    while(pro_num > 0)
+    while(prod)
       pro_cond.wait(pro_locker);
    
     lock_guard<mutex> con_locker(con_mux);
@@ -58,7 +58,7 @@ public:
   void consumerUnlock() {
     lock_guard<mutex> con_locker(con_mux);
     con_num--;
-    con_cond.notify_all();
+    con_cond.notify_one();
   }
   
   void producerLock() {
@@ -66,13 +66,12 @@ public:
     while(con_num > 0)
       con_cond.wait(con_locker);
     
-    lock_guard<mutex> pro_locker(pro_mux);
-    pro_num++;
+    prod = true;
   }
   
   void producerUnlock() {
     lock_guard<mutex> pro_locker(pro_mux);
-    pro_num--;
+    prod = false;
     pro_cond.notify_all();
   }
   
