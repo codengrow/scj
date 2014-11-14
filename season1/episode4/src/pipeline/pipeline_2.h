@@ -40,14 +40,16 @@ class Node {
   
   mutex pro_mux;
   condition_variable pro_cond;
+  unsigned long pro_num;
   
 public:
   
-  Node(): con_num(0) {}
+  Node(): con_num(0), pro_num(0) {}
   
   void consumerLock() {
     unique_lock<mutex> pro_locker(pro_mux);
-    pro_cond.wait(pro_locker);
+    while(pro_num > 0)
+      pro_cond.wait(pro_locker);
    
     lock_guard<mutex> con_locker(con_mux);
     con_num++;
@@ -56,17 +58,21 @@ public:
   void consumerUnlock() {
     lock_guard<mutex> con_locker(con_mux);
     con_num--;
-    con_cond.notify_one();
+    con_cond.notify_all();
   }
   
   void producerLock() {
     unique_lock<mutex> con_locker(con_mux);
     while(con_num > 0)
       con_cond.wait(con_locker);
+    
+    lock_guard<mutex> pro_locker(pro_mux);
+    pro_num++;
   }
   
   void producerUnlock() {
     lock_guard<mutex> pro_locker(pro_mux);
+    pro_num--;
     pro_cond.notify_all();
   }
   
@@ -90,7 +96,10 @@ public:
   }
   
   int getSize() const {return size;}
-  Node<T>& getNode(int idx) const { return nodes[idx]; }
+  
+  Buffer<T>& operator[](std::size_t i) = delete;
+  
+  Node<T>& at(int idx) const  { return nodes[idx]; }
 };
 
 
@@ -147,11 +156,11 @@ public:
     
     int idx = 0;
     while(1) {
-      buf->getNode(idx).consumerLock();
-      num = buf->getNode(idx).read();
+      buf->at(idx).consumerLock();
+      num = buf->at(idx).read();
       log();
       sleep();
-      buf->getNode(idx).consumerUnlock();
+      buf->at(idx).consumerUnlock();
       idx = (idx + 1) % size;
     }
   }
@@ -173,11 +182,11 @@ public:
     
     int idx = 0;
     while(1) {
-      buf->getNode(idx).producerLock();
-      buf->getNode(idx).write(num);
+      buf->at(idx).producerLock();
+      buf->at(idx).write(num);
       log();
       sleep();
-      buf->getNode(idx).producerUnlock();
+      buf->at(idx).producerUnlock();
       num++;
       idx = (idx + 1) % size;
     }
