@@ -1,7 +1,7 @@
 #include<iostream>
 #include<exception>
-#include<string>
 #include<stdexcept>
+#include<ctime>
 
 using namespace std;
 
@@ -15,6 +15,11 @@ class myexcept : public exception
 
     void where()
     {
+	srand(time(0));
+	if (rand()%2 == 0)
+		throw "Where";
+	else
+		throw 42;
     }
 } e;
 
@@ -48,9 +53,12 @@ int main()
   try
   {
     e.where();
-  }catch(myexcept e)
+  }catch(const char * str)
   {
-    cout << "4. Catch a method inside a class: " << endl;
+    cout << "4. Catch a method inside a class: "  << str << endl;
+  }
+  catch(int i) {
+    cout << "4. Catch an integer: " << i << endl;
   }
   
 }
