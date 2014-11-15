@@ -13,7 +13,7 @@ class myexcept : public exception
       return "Exception description";
     }
 
-    void where() throw(const char*, int)
+    void where()
     {
 	srand(time(0));
 	if (rand()%2 == 0)
