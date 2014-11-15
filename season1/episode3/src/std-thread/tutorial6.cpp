@@ -21,15 +21,7 @@ void parallel_for_each(Iterator first,Iterator last,Func f)
 
     future<void> bgtask = async(&parallel_for_each<Iterator,Func>,
                                         first,mid,f);
-    try
-    {
-        parallel_for_each(mid,last,f);
-    }
-    catch(...)
-    {
-        bgtask.wait();
-        throw;
-    }
+    parallel_for_each(mid,last,f);
     bgtask.get();   
 }
 
