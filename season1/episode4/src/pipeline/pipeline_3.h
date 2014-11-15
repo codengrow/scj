@@ -23,22 +23,26 @@ public:
   
   Sample() {}
   
+  void lock() {
+  }
+  
+  void unlock() {
+  }
+  
   void consumerLock() {
     
   }
   
-    
   void consumerUnlock() {
   }
   
   void producerLock() {
   }
-  
  
   void producerUnlock() {
   }
 
-    bool producerRTLock() {
+  bool producerRTLock() {
   }
  
   void write(T val) {
@@ -125,11 +129,11 @@ public:
     
     int idx = 0;
     while(1) {
-      buf->at(idx).consumerLock();
+      buf->at(idx).lock();
       num = buf->at(idx).read();
       log("is consuming");
       sleep();
-      buf->at(idx).consumerUnlock();
+      buf->at(idx).unlock();
       idx = (idx + 1) % size;
     }
   }
@@ -152,11 +156,11 @@ public:
     
     int idx = 0;
     while(1) {
-      buf->at(idx).producerLock();
+      buf->at(idx).lock();
       buf->at(idx).write(num);
       log("is producing");
       sleep();
-      buf->at(idx).producerUnlock();
+      buf->at(idx).unlock();
       idx = (idx + 1) % size;
       num++;
     }
