@@ -18,54 +18,29 @@ class Sample {
   T val;
   mutex mux;
   
-  condition_variable con_cond;
-  unsigned int con_num;
-  
-  condition_variable pro_cond;
-  bool prod;
   
 public:
   
-  Sample(): con_num(0), prod(false) {}
+  Sample() {}
   
   void consumerLock() {
-    unique_lock<mutex> locker(mux);
-    while(prod)
-      pro_cond.wait(locker);
     
-    con_num++;
   }
   
     
   void consumerUnlock() {
-    lock_guard<mutex> locker(mux);
-    con_num--;
-    con_cond.notify_one();
   }
   
   void producerLock() {
-    unique_lock<mutex> locker(mux);
-    while(con_num > 0)
-      con_cond.wait(locker);
-    
-    prod = true;
   }
   
-  bool producerRTLock() {
-    lock_guard<mutex> locker(mux);
-    if(con_num > 0)
-      return false;
-    
-    prod = true;
-    return true;
-  }
-  
+ 
   void producerUnlock() {
-    lock_guard<mutex> locker(mux);
-    prod = false;
-    pro_cond.notify_all();
   }
-  
+
+    bool producerRTLock() {
+  }
+ 
   void write(T val) {
     this->val = val; 
   }
