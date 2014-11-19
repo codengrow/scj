@@ -10,7 +10,7 @@ class myexcept : public exception
   public:
     virtual const char* what() const throw()
     {
-      return "Exception description";
+      return "This is an Exception";
     }
 
     void where()
