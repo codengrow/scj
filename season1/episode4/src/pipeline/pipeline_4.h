@@ -69,6 +69,7 @@ public:
     if(con_num > 0)
       return false;
     
+    produced = true;
     prod = true;
     return true;
   }
