@@ -22,15 +22,15 @@ public:
   void put(int m)
   {
     scoped_lock lock(mutex);
-    if (full == BUF_SIZE)
+    //if (full == BUF_SIZE)
     {
-      {
+     /* {
         boost::mutex::scoped_lock
           lock(io_mutex);
         std::cout <<
           "Buffer is full. Waiting..."
           << std::endl;
-      }
+      }*/
       while (full == BUF_SIZE)
         cond.wait(lock);
     }
@@ -43,15 +43,15 @@ public:
   int get()
   {
     scoped_lock lk(mutex);
-    if (full == 0)
+    //if (full == 0)
     {
-      {
+      /*{
         boost::mutex::scoped_lock
           lock(io_mutex);
         std::cout <<
           "Buffer is empty. Waiting..."
           << std::endl;
-      }
+      }*/
       while (full == 0)
         cond.wait(lk);
     }
@@ -75,12 +75,12 @@ void writer()
 {
   for (int n = 0; n < ITERS; ++n)
   {
-    {
+    /*{
       boost::mutex::scoped_lock
         lock(io_mutex);
       std::cout << "sending: "
         << n << std::endl;
-    }
+    }*/
     buf.put(n);
   }
 }
@@ -90,12 +90,12 @@ void reader()
   for (int x = 0; x < ITERS; ++x)
   {
     int n = buf.get();
-    {
+    /*{
       boost::mutex::scoped_lock
         lock(io_mutex);
       std::cout << "received: "
         << n << std::endl;
-    }
+    }*/
   }
 }
      
