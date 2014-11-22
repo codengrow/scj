@@ -8,12 +8,14 @@ using namespace std;
 class myexcept : public exception
 {
   public:
-    virtual const char* what() const throw()
+    //virtual const char* what() const throw() // Old style! std::exception::what in c++98 
+    virtual const char* what() const noexcept //c++11! std::exception::what() does not throw any exception
     {
       return "This is an Exception";
     }
 
-    void where()
+    //void where() throw( const char*, int) // throw(typeid) is deprecated
+    void where() //No need to explicitly declare throw(typeid) here
     {
 	srand(time(0));
 	if (rand()%2 == 0)
