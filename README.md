@@ -1,7 +1,7 @@
 Saturday Code Jam (scj)
 ===
 
-Saturday Code Jam is a project aims at sharing knowledge and learning in the following topics of interest:
+Saturday Code Jam is a project aiming at sharing knowledge and learning in the following topics of interest:
 * Software Design/Architecture
 * Programing Languages (C/C++, Python)
 * Linux Tools
