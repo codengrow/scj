@@ -6,9 +6,8 @@ Season 1
  * Episode 3 - Concurrency concepts : std::thread vs. boost::thread
  * Episode 4 - Pipeline architecture design 1 using std::thread
  * Episode 5 - Pipeline architecture design 2
- * Episode ? - UML Meta-modeling
- * Episode 5 - Templates and generic templating
- * Episode 6 - C++11 smart pointers
- * Episode 7 - C++11 new concepts
- * Episode 8 - Vim intro 2::highlighting and autocompletion, debugging
- * Episode 9 - OpenMP vs. TBB
+ * Episode 6 - Templates and generic templating
+ * Episode 7 - C++11 smart pointers
+ * Episode 8 - C++11 new concepts
+ * Episode 9 - Vim intro 2::highlighting and autocompletion, debugging
+ * Episode 10 - OpenMP vs. TBB
