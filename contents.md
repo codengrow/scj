@@ -7,7 +7,11 @@ Season 1
  * Episode 4 - Pipeline architecture design 1 using std::thread
  * Episode 5 - Pipeline architecture design 2
  * Episode 6 - Templates and generic templating
- * Episode 7 - C++11 smart pointers
- * Episode 8 - C++11 new concepts
- * Episode 9 - Vim intro 2::highlighting and autocompletion, debugging
- * Episode 10 - OpenMP vs. TBB
+ * Episode 7 - UML Metamodeling: General Basics, Class Diagram (2.2.9)
+ * Episode 8 - UML Metamodeling: Class Diagrams
+ * Episode 9 - UML Metamodeling: Behavior basics, Activity Diagrams
+ * Episode 10 - UML Metamodeling: Interaction Diagrams, Use cases
+ * Episode 11 - C++11 smart pointers
+ * Episode 12 - C++11 new concepts
+ * Episode 13 - Vim intro 2::highlighting and autocompletion, debugging
+ * Episode 14 - OpenMP vs. TBB
