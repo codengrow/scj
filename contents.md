@@ -11,7 +11,8 @@ Season 1
  * Episode 8 - UML Metamodeling: Class Diagrams
  * Episode 9 - UML Metamodeling: Behavior basics, Activity Diagrams
  * Episode 10 - UML Metamodeling: Interaction Diagrams, Use cases
- * Episode 11 - C++11 smart pointers
- * Episode 12 - C++11 new concepts
- * Episode 13 - Vim intro 2::highlighting and autocompletion, debugging
- * Episode 14 - OpenMP vs. TBB
+ * Episode 11 - Discrete Mathematics (Tower of Hanoi, Slicing Pizza problem, MIU-system)
+ * Episode 12 - C++11 smart pointers
+ * Episode 13 - C++11 new concepts
+ * Episode 14 - Vim intro 2::highlighting and autocompletion, debugging
+ * Episode 15 - OpenMP vs. TBB
